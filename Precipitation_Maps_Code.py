@@ -1,4 +1,3 @@
-# Total Precipitation Data (Maddie)
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -56,15 +55,9 @@ lon_min, lon_max = -85.75, -73.75
 # Convert lat/lon to a MeshGrid (lat/lon swapped to conform to correct data shape)
 lon, lat = np.meshgrid(lon, lat)
 
-# Create figure and title
-fig = plt.figure(figsize=(11, 7), layout="tight")
-# fig.suptitle("Precipitation around Hurricane Helene")
-
-# Create grid spec with a 2 row x 2 column grid
-gs = fig.add_gridspec(2, 2)
-
-# Create top plot
-ax1 = fig.add_subplot(gs[0, :], projection=ccrs.PlateCarree())
+# FIGURE 1:
+fig1 = plt.figure(figsize=(8, 4.5), layout="tight")
+ax1 = fig1.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
 ax1.set_title(f"Total Precipitation ({netCDF4.num2date(time[totalHeleneDays[0]], time_var.units).strftime('%b %d')} - {netCDF4.num2date(time[totalHeleneDays[1]], time_var.units).strftime('%b %d')})")
 
 ax1Contour = ax1.contourf(
@@ -74,11 +67,37 @@ ax1Contour = ax1.contourf(
     cmap="viridis"
 )
 
-fig.colorbar(ax1Contour, ax=ax1, ticks=np.linspace(0, 15, 7), label="Precipitation (in)", orientation="horizontal", pad=0.025, shrink=0.565)
+fig1.colorbar(ax1Contour, ax=ax1, ticks=np.linspace(0, 15, 7), label="Precipitation (in)", orientation="horizontal", pad=0.025)
 
-# Create bottom left plot
-ax2 = fig.add_subplot(gs[1, 0], projection=ccrs.PlateCarree())
-ax2.set_title(f"Before Helene ({netCDF4.num2date(time[preHeleneDays[0]], time_var.units).strftime('%b %d')} - {netCDF4.num2date(time[preHeleneDays[1]], time_var.units).strftime('%b %d')})")
+# Set extent (zoom in)
+# We might want to adjust this on the top map since the aspect ratio will be off
+ax1.set_extent(extents=[lon_min, lon_max, lat_min, lat_max], crs=ccrs.PlateCarree())
+
+# Add feature(s)
+ax1.add_feature(cf.STATES, edgecolor="black", linewidth=1)
+
+# Add our city name/dot on the map (Asheville, NC)
+city_lon, city_lat = -82.5461, 35.5975
+ax1.plot(city_lon, city_lat, marker="o", color="black", markersize=3, transform=ccrs.PlateCarree())
+ax1.text(
+    city_lon + 0.55, city_lat + 0.1,
+    "Asheville",
+    transform=ccrs.PlateCarree(),
+    fontsize=8,
+    fontweight="bold",
+    ha="center",
+    va="bottom",
+    color="black"
+)
+
+# Save image
+fig1.savefig("fig1.png")
+
+
+# FIGURE 2:
+fig2 = plt.figure(figsize=(8, 4.5), layout="tight")
+ax2 = fig2.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+ax2.set_title(f"Before Helene Precipitation ({netCDF4.num2date(time[preHeleneDays[0]], time_var.units).strftime('%b %d')} - {netCDF4.num2date(time[preHeleneDays[1]], time_var.units).strftime('%b %d')})")
 
 ax2Contour = ax2.contourf(
     lon, lat, preHeleneData,
@@ -87,12 +106,37 @@ ax2Contour = ax2.contourf(
     cmap="viridis"
 )
 
-fig.colorbar(ax2Contour, ax=ax2, ticks=np.linspace(0, 15, 7), label="Precipitation (in)", orientation="horizontal", pad=0.025)
+fig2.colorbar(ax2Contour, ax=ax2, ticks=np.linspace(0, 15, 7), label="Precipitation (in)", orientation="horizontal", pad=0.025)
+
+# Set extent (zoom in)
+# We might want to adjust this on the top map since the aspect ratio will be off
+ax2.set_extent(extents=[lon_min, lon_max, lat_min, lat_max], crs=ccrs.PlateCarree())
+
+# Add feature(s)
+ax2.add_feature(cf.STATES, edgecolor="black", linewidth=1)
+
+# Add our city name/dot on the map (Asheville, NC)
+city_lon, city_lat = -82.5461, 35.5975
+ax2.plot(city_lon, city_lat, marker="o", color="black", markersize=3, transform=ccrs.PlateCarree())
+ax2.text(
+    city_lon + 0.55, city_lat + 0.1,
+    "Asheville",
+    transform=ccrs.PlateCarree(),
+    fontsize=8,
+    fontweight="bold",
+    ha="center",
+    va="bottom",
+    color="black"
+)
+
+# Save image
+fig2.savefig("fig2.png")
 
 
-# Create bottom right plot
-ax3 = fig.add_subplot(gs[1, 1], projection=ccrs.PlateCarree())
-ax3.set_title(f"After Helene ({netCDF4.num2date(time[postHeleneDays[0]], time_var.units).strftime('%b %d')} - {netCDF4.num2date(time[postHeleneDays[1]], time_var.units).strftime('%b %d')})")
+# FIGURE 3:
+fig3 = plt.figure(figsize=(8, 4.5), layout="tight")
+ax3 = fig3.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+ax3.set_title(f"After Helene Precipitation ({netCDF4.num2date(time[postHeleneDays[0]], time_var.units).strftime('%b %d')} - {netCDF4.num2date(time[postHeleneDays[1]], time_var.units).strftime('%b %d')})")
 
 ax3Contour = ax3.contourf(
     lon, lat, postHeleneData,
@@ -101,37 +145,31 @@ ax3Contour = ax3.contourf(
     cmap="viridis"
 )
 
-fig.colorbar(ax3Contour, ax=ax3, ticks=np.linspace(0, 15, 7), label="Precipitation (in)", orientation="horizontal", pad=0.025)
+fig3.colorbar(ax3Contour, ax=ax3, ticks=np.linspace(0, 15, 7), label="Precipitation (in)", orientation="horizontal", pad=0.025)
 
+# Set extent (zoom in)
+# We might want to adjust this on the top map since the aspect ratio will be off
+ax3.set_extent(extents=[lon_min, lon_max, lat_min, lat_max], crs=ccrs.PlateCarree())
 
-# Set shared properties (extent, features, etc.)
-for ax in [ax1, ax2, ax3]:
-    # Set extent (zoom in)
-    # We might want to adjust this on the top map since the aspect ratio will be off
-    ax.set_extent(extents=[lon_min, lon_max, lat_min, lat_max], crs=ccrs.PlateCarree())
+# Add feature(s)
+ax3.add_feature(cf.STATES, edgecolor="black", linewidth=1)
 
-    # Add feature(s)
-    ax.add_feature(cf.LAND, color="khaki")
-    # ax.add_feature(cf.OCEAN, color="lightblue")
-    ax.add_feature(cf.STATES, edgecolor="black", linewidth=1)
+# Add our city name/dot on the map (Asheville, NC)
+city_lon, city_lat = -82.5461, 35.5975
+ax3.plot(city_lon, city_lat, marker="o", color="black", markersize=3, transform=ccrs.PlateCarree())
+ax3.text(
+    city_lon + 0.55, city_lat + 0.1,
+    "Asheville",
+    transform=ccrs.PlateCarree(),
+    fontsize=8,
+    fontweight="bold",
+    ha="center",
+    va="bottom",
+    color="black"
+)
 
-    # Add our city name/dot on the map (Asheville, NC)
-    city_lon, city_lat = -82.5461, 35.5975
-    ax.plot(city_lon, city_lat, marker="o", color="black", markersize=3, transform=ccrs.PlateCarree())
-    ax.text(
-        city_lon + 0.25, city_lat + 0.1,
-        "Asheville",
-        transform=ccrs.PlateCarree(),
-        fontsize=8,
-        fontweight="bold",
-        ha="center",
-        va="bottom",
-        color="black"
-    )
-
-# Save map image
-fig.savefig("map1.png")
+# Save image
+fig3.savefig("fig3.png")
 
 # Close file handle
 precipDataset.close()
-message.txt
